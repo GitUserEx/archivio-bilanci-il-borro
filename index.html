@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<!--
+IMPOSTAZIONE GENERALE --------------------
+Come richiesto dalla traccia, la pagina fa due cose: comunica le attività di
+sostenibilità dell'impresa (sezioni "La tenuta", "Le attività", "I numeri" e
+"Nota metodologica") e consente il download dei suoi report (sezione "Archivio
+dei bilanci").
+
+La navigazione nell'header permette di saltare direttamente a ciascuna sezione.
+
+Come da traccia, la pagina utilizza solo codice HTML e CSS. Per una più
+facile leggibilità anche senza CSS e per un funzionamento anche offline, la
+pagina consiste di soli due file (.html e .css) e dei report di sostenibilità.
+--------------------
+
+CONVENZIONE SUI NOMI DELLE CLASSI --------------------
+A quasi ogni elemento è assegnata una classe. La scelta risponde a due esigenze.
+
+- La prima è la leggibilità del markup: il nome della classe dichiara
+la funzione dell'elemento nella pagina, quindi leggendo il solo HTML si
+ricostruisce la struttura del documento senza aprire il file CSS.
+
+- La seconda è tecnica: ogni classe è il punto di aggancio su cui il CSS
+applica le proprie regole. Selezionare per classe invece che per tipo di
+elemento evita che una regola scritta per un contesto (ad esempio "table")
+ne colpisca inavvertitamente un altro, e permette di cambiare l'elemento HTML
+senza riscrivere il CSS.
+
+
+I nomi sono costruiti su tre forme, distinguibili dal separatore che contengono.
+
+- La prima è il nome semplice, come "edizione", "ambito" o "parcella": designa un
+blocco, cioè un componente autonomo della pagina.
+
+- La seconda ha un doppio trattino basso, come "edizione__anno" o
+"apertura__occhiello": designa una parte interna di un blocco. La forma
+blocco__parte rende esplicito a quale componente l'elemento appartenga anche
+quando lo si incontra da solo, senza doverne cercare il contenitore.
+
+- La terza ha un doppio trattino, come "ambito--acqua" o "parcella--bosco": designa
+una variante di un blocco già definito. La variante non sostituisce il nome base
+ma lo affianca, e nel markup si legge infatti class="ambito ambito--acqua", dove
+la prima classe porta le proprietà comuni ai sei riquadri delle attività,
+la seconda soltanto ciò che distingue quello dedicato all'acqua.
+
+Restano fuori da questo schema poche classi che non descrivono componenti ma
+ruoli minuti e ricorrenti: "unita" per il simbolo di misura nelle intestazioni
+di tabella, "nota" per il richiamo alle riesposizioni, "didascalia" per il testo
+esplicativo sotto una tabella, "col-voce" e "col-anno" per le colonne della
+tabella di confronto, "q" per le celle che trasportano il valore da cui il foglio
+di stile ricava la lunghezza della barra. Hanno nomi brevi perché compaiono molte
+volte e non appartengono a un blocco in particolare.
+--------------------
+-->
+
+
+<!--
+<html lang="it">
+Apre l'elemento radice della pagina HTML. L'attributo lang="it" dichiara
+che la lingua principale del documento è l'italiano. È utile per accessibilità,
+screen reader, motori di ricerca e strumenti di traduzione.
+
+<head> </head>
+La sezione head del documento. Qui vengono inserite informazioni sulla pagina
+che normalmente non vengono visualizzate direttamente nel contenuto della pagina:
+titolo, metadati, collegamenti a CSS, script, favicon, ecc...
+
+<meta charset="utf-8">
+Gli elementi <meta> non producono nulla di visibile, ma trasportano informazioni
+destinate al browser o ad altri programmi che lo leggono. "charset" specifica la
+codifica dei caratteri del documento. In questo caso la scelta ricade su "UTF-8",
+che permette di visualizzare correttamente caratteri come à, è, ì, ò, ù, € e
+molti altri.
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+L'attributo "name" dichiara di quale informazione si tratti, in questo caso il
+viewport, cioè l'area della finestra in cui la pagina viene disegnata. L'attributo
+"content" porta i valori dell'informazione, in questo caso due separati da virgola.
+width=device-width impone che la larghezza di quell'area coincida con la larghezza
+reale dello schermo. initial-scale=1 fissa a 1 il fattore di ingrandimento iniziale.
+Senza queste direttive, alcuni browser mobile possono trattare la pagina come
+se fosse progettata per uno schermo desktop più largo e poi ridurla, causando una
+visualizzazione poco corretta.
+-->
+
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!--
+<title>
+È l'unico elemento obbligatorio dentro <head>. Il testo che contiene non compare
+nella pagina, ma serve: al browser, che lo usa come nome della scheda e come
+titolo di segnalibro; ai motori di ricerca, come intestazione del risultato;
+agli screen reader, come prima informazione annunciata all'apertura del documento.
+
+<meta name="description"...
+Aggiunge un riassunto del contenuto. I motori di ricerca lo usano di norma come testo
+dell'anteprima sotto il titolo del risultato, e lo stesso fanno le applicazioni di
+messaggistica quando si incolla un collegamento. Non incide sul posizionamento
+fra i risultati di ricerca.
+
+<meta name="author"...
+Attribuisce la paternità del contenuto. Non ha effetti visibili o sul posizionamento
+e serve alla documentazione del file.
+
+<link rel="stylesheet" href="style.css">
+Serve a collegare il file HTML al file CSS per lo stile della pagina.
+L'attributo rel dichiara al browser il tipo di relazione fra i due file, href indica
+il percorso del file. In questo caso, il file "style.css" senza barre iniziali è un
+percorso relativo, quindi il file si trova nella stessa cartella di index.html.
+-->
+
+    <title>Bilanci di sostenibilità · Il Borro S.r.l. – Società Agricola</title>
+
+    <meta name="description"
+        content="Le attività di sostenibilità de Il Borro S.r.l. – Società Agricola e l'archivio dei bilanci di sostenibilità 2020-2025, scaricabili in PDF.">
+    <meta name="author"
+        content="Il Borro S.r.l. – Società Agricola">
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<!--
+<body> </body>
+Contiene il contenuto della pagina che l'utente visualizza e con cui può interagire.
+Per una maggiore accessibilità, la pagina è interamente navigabile con l'uso del tasto
+Tab, che sposta il focus da un elemento interattivo al successivo, Maiusc+Tab torna
+al precedente, Invio attiva il collegamento o apre la scheda selezionata.
+L'ordine in cui il focus attraversa la pagina è quello in cui gli elementi compaiono
+nel file. Il file CSS disegna attorno all'elemento a fuoco un contorno ben
+visibile, con la regola :focus-visible, così chi naviga in questo modo vede sempre
+a che punto si trova.
+
+<header> </header>
+Indica una sezione introduttiva o di intestazione di una pagina o di una specifica
+sezione. Spesso è usato per contenere logo, titolo, menu di navigazione,
+informazioni introduttive, ecc...
+
+<main> </main>
+Racchiude il contenuto principale del documento, cioè tutto ciò che è specifico
+di questa pagina, escludendo gli elementi di contorno come l'intestazione e il piè
+di pagina.
+
+<footer> </footer>
+Il piè di pagina che conclude la pagina web e fornisce ulteriori informazioni.
+
+class="termine"
+Per tutto il corpo, viene usato questa forma di codice per assegnare ad un elemento
+la classe CSS con il nome all'interno dello spazio tra "". La classe non modifica
+da sola l'aspetto dell'elemento. Serve principalmente come identificatore utilizzabile
+dal CSS e, eventualmente, da JavaScript. È quindi l'etichetta con cui il file CSS
+raggiunge l'elemento, ma a differenza di id, una classe può essere assegnata a più
+elementi.
+
+id="termine"
+Viene usato per assegnare all'elemento un identificatore univoco. Serve
+principalmente per identificarlo con CSS o JavaScript (come le classi), creare
+un'ancora/link interno, identificarlo semanticamente nel DOM.
+
+<section> </section>
+Delimita una sezione tematica, cioè un gruppo di contenuti che stanno insieme
+perché trattano lo stesso argomento. A differenza di <div>, che è un contenitore
+privo di significato proprio, <section> comunica ai programmi che leggono la
+pagina che il blocco è una partizione del testo e non un semplice raggruppamento
+grafico.
+
+<h1> </h1>
+È il titolo di primo livello. Ne esiste uno solo per pagina perché rappresenta
+l'argomento dell'intero documento, e da esso discende la gerarchia dei titoli:
+ogni sezione si apre con un <h2>, i riquadri interni alle sezioni usano <h3>.
+Chi consulta la pagina con uno screen reader può scorrerla saltando di titolo
+in titolo, e la gerarchia è esattamente ciò che rende comprensibile quel percorso.
+
+<p> </p>
+Indica un paragrafo, un elemento HTML destinato a contenere un blocco di testo.
+
+<br>
+Usato per forzare un'andata a capo.
+
+<b> </b>
+Rende il testo in grassetto dal punto di vista della presentazione, ma non gli
+attribuisce un significato semantico che i reader di testo possono trattare
+diversamente, come farebbe invece un <strong> </strong>.
+
+<span> </span>
+È un contenitore inline generico. Non ha un significato semantico specifico.
+Serve spesso per applicare CSS a una porzione di testo specifica.
+-->
+
+<body>
+
+<!--
+Costruzione dell'header della pagina, che conterrà il nome identificativo della
+società e un menu navigabile.
+-->
+
+<header class="testata">
+    <p class="testata__impresa">Il Borro S.r.l. – Società Agricola</p>
+
+<!--
+La seguente è una marcazione del menu con i blocchi navigabili tramite tasto Tab.
+
+<nav> </nav>
+È un elemento HTML semantico. Serve a indicare al browser, ai motori di ricerca
+e soprattutto alle tecnologie assistive (come gli screen reader) che quella parte
+della pagina contiene dei collegamenti di navigazione.
+
+aria-label="Sezioni della pagina"
+È un attributo di WAI-ARIA usato per fornire un nome accessibile a un elemento HTML.
+È quindi principalmente usato per fornire informazioni aggiuntive alle tecnologie
+assistive per l'accessibilità, come gli screen reader.
+
+<ul> </ul>
+È un elemento che rappresenta una lista non ordinata. In questo caso è usato per
+rappresentare l'elenco di voci di navigazione del menu.
+
+<li> </li>
+È un elemento che rappresenta una singola voce della lista.
+
+<a> </a>
+È un elemento usato per un collegamento ipertestuale. Serve a mostrare un testo che
+è cliccabile, un link verso un'altra pagina internet o, come in questo caso, verso
+un'altra posizione della stessa pagina.
+
+href="#termine"
+È l'attributo di <a> che indica la destinazione del collegamento. L'uso di #termine
+invece di un URL, permette di saltare alla sezione citata della stessa pagina.
+-->
+
+    <nav class="menu" aria-label="Sezioni della pagina">
+        <ul>
+            <li><a href="#tenuta">La tenuta</a></li>
+            <li><a href="#attivita">Le attività</a></li>
+            <li><a href="#numeri">I numeri</a></li>
+            <li><a href="#archivio">Archivio dei bilanci</a></li>
+            <li><a href="#metodo">Nota metodologica</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+
+<!-- ======================================================================
+APERTURA DELLA PAGINA, con titolo e breve occhiello.
+====================================================================== -->
+
+<section class="apertura">
+    <h1>Bilanci di sostenibilità<br>2020 – 2025</h1>
+
+    <p class="apertura__occhiello">
+        Portale sui bilanci di sostenibilità de «Il Borro S.r.l.», Società
+        Agricola toscana di 1.121 ettari, biologica sull'intera produzione dal
+        2015. Gli ultimi sei report sono scaricabili in fondo a questa pagina.
+    </p>
+
+<!--
+Di seguito è presente un collegamento interno alla pagina. Cliccandoci sopra il
+browser porta il lettore alla sezione "archivio" più in basso. Rispetto alla voce
+corrispondente del menu ha la stessa destinazione ma un peso visivo diverso, perché
+il download dei report è la funzione principale della pagina.
+-->
+
+    <p class="apertura__azione">
+        <a class="bottone" href="#archivio">Vai all'archivio dei bilanci</a>
+    </p>
+
+</section>
+
+<!-- ======================================================================
+LA TENUTA
+Dopo la presentazione della sezione con titolo e descrizione, viene mostrato
+un grafico che visualizza la ripartizione in parcelle della superficie secondo
+il Bilancio di sostenibilità 2025. La parcella "Non ripartito" è la voce che
+il bilancio non ripartisce. Sottraendo al totale dichiarato la superficie
+boschiva e tutte le colture elencate restano 221 ettari senza destinazione indicata.
+
+<figure> </figure>
+È un elemento pensato per contenuti autonomi associati al testo principale.
+Tipicamente è usato per immagini, grafici, tabelle e altri vari contenuti visuali.
+Il suo utilizzo qui è proprio per mostrare graficamente la ripartizione della
+superficie. Contiene al suo interno <figcaption> </figcaption>, una didascalia
+associata alla figura, che permette ai browser e tecnologie assistive di capire
+che quel testo descrive la figura.
+
+style="--ha: N"
+Ogni parcella porta questo attributo inline, dove N è la superficie reale in
+ettari dichiarata nel bilancio 2025. Il CSS assegna flex-grow: var(--ha) e
+flex-basis: 0, quindi la larghezza di ciascun blocco è esattamente proporzionale
+al dato.
+====================================================================== -->
+
+<section id="tenuta" class="sezione">
+    <h2>1.121 ettari, in scala</h2>
+
+    <p>
+      Il Borro si estende nel Valdarno superiore, nel comune di Loro Ciuffenna,
+      su colline tra i 300 e i 500 metri. Più della metà della superficie è
+      bosco. La parte coltivata è dominata dalla vite, ma comprende olivo,
+      cereali, foraggi, un arboreto da legno, l'orto e sei ettari seminati per
+      gli impollinatori.
+    </p>
+
+    <figure class="tenuta">
+        <ul class="mosaico">
+            <li class="parcella parcella--bosco"   style="--ha: 620"><b>Bosco</b> <span>620 ha</span></li>
+            <li class="parcella parcella--non-ripartito" style="--ha: 221"><b>Non ripartito</b> <span>221 ha</span></li>
+            <li class="parcella parcella--foraggi" style="--ha: 118"><b>Foraggi e pascoli</b> <span>118 ha</span></li>
+            <li class="parcella parcella--vite"    style="--ha: 93"><b>Vite</b> <span>93 ha</span></li>
+            <li class="parcella parcella--olivo"   style="--ha: 34"><b>Olivo</b> <span>34 ha</span></li>
+            <li class="parcella parcella--cereali" style="--ha: 14"><b>Cereali</b> <span>14 ha</span></li>
+            <li class="parcella parcella--arboreto" style="--ha: 11"><b>Arboreto</b> <span>11 ha</span></li>
+            <li class="parcella parcella--impollinatori" style="--ha: 6"><b>Impollinatori</b> <span>6 ha</span></li>
+            <li class="parcella parcella--orto"    style="--ha: 4"><b>Orto e lavanda</b> <span>4 ha</span></li>
+        </ul>
+
+        <figcaption>
+            Ripartizione della superficie secondo il Bilancio di sostenibilità
+            2025. Le parcelle sono proporzionali agli ettari, con una larghezza
+            minima che rende leggibili le voci sotto l'1%: le più piccole
+            appaiono quindi leggermente più grandi del reale. La voce «non ripartito» è la
+            differenza tra la superficie totale dichiarata e la somma delle
+            destinazioni elencate nel documento.
+        </figcaption>
+    </figure>
+
+<!--
+La scelta di usare qui una lista <dl> per mostrare le coppie termine-definizione
+è stata presa per una maggiore compatibilità con tecnologie assistive e per una
+struttura più SEO-friendly per i motori di ricerca. Con <dt> assegno il termine,
+con <dd> la descrizione del termine.
+-->
+    <dl class="scheda">
+        <dt>Ragione sociale</dt>
+            <dd>Il Borro S.r.l. – Società Agricola</dd>
+
+        <dt>Codice ATECO</dt>
+            <dd>01.21 — Coltivazione di uva (sezione A)</dd>
+
+        <dt>Sede</dt>
+            <dd>Loc. Borro 1, Loro Ciuffenna (Arezzo)</dd>
+
+        <dt>Forza lavoro media 2025</dt>
+            <dd>357 persone, di cui 203 dipendenti</dd>
+
+        <dt>Certificazioni</dt>
+            <dd>Biologico dal 2015, VIVA, GSTC, Plastic Free</dd>
+    </dl>
+
+</section>
+
+<!-- ======================================================================
+LE ATTIVITÀ
+In questa sezione vengono presentati 6 blocchi marcati con <article> e raggruppati
+da <div class="griglia">. Dentro ogni blocco <article> è presente un titolo in <h3>
+ed una relativa descrizione dell'attività tramite paragrafi <p> </p>.
+
+L'uso di <article> ha lo scopo di rendere i blocchi semanticamente rilevanti,
+comunica al browser, ai motori di ricerca e agli screen reader che quel blocco
+costituisce un contenuto autonomo e logicamente distinto.
+L'uso del <div>, in quanto non comunica un significato semantico specifico, è usato
+solo per raggruppare i blocchi in favore di un lavoro più preciso tramite CSS.
+
+I contenuti sono tratti dal Bilancio di sostenibilità 2025:
+- suolo e colture: cap. 3, "Tutela delle risorse naturali e della biodiversità"
+(par. 3.1 e 3.2, pp. 46-50) e par. 1.3.3, "L'agricoltura";
+- energia: par. 4.1, "Consumi energetici", p. 56;
+- clima: par. 4.2 e 4.3, sulle emissioni GHG dirette e indirette, pp. 58-63;
+- acqua: cap. 5, "Gestione ed uso responsabile della risorsa idrica", p. 64;
+- economia circolare: cap. 6, pp. 70-75, e par. 2.4, "Filiera locale";
+- persone: cap. 7, "Sviluppo e tutela delle risorse umane", pp. 76-81.
+I valori numerici provengono dalla sezione "Indicatori di performance", pp. 94-103.
+====================================================================== -->
+<section id="attivita" class="sezione">
+    <h2>Le attività</h2>
+
+    <div class="griglia">
+
+        <article class="ambito ambito--suolo">
+            <h3>Agricoltura biologica e biodiversità</h3>
+            <p>
+            La conversione comincia nel 2012 e si chiude nel 2015 con la
+            certificazione biologica sull'intera produzione. Al posto dei
+            fitosanitari di sintesi: corno letame prodotto dall'allevamento di
+            chianine della tenuta, macerati di equiseto e ortica, rame e zolfo. La
+            potatura secca segue le fasi lunari, alcuni vigneti sono arati con
+            cavalli per non compattare il suolo.
+            </p>
+            <p>
+            Sono stati seminati sei ettari dedicati agli impollinatori e,
+            soprattutto, recuperate colture quasi scomparse come il cecio piccino,
+            il pomodoro piccolo toscano e i grani antichi macinati a pietra.
+            </p>
+            <p class="ambito__dato">Biologico sul 100% della produzione dal 2015</p>
+        </article>
+
+        <article class="ambito ambito--energia">
+            <h3>Energia</h3>
+            <p>
+            Il campo fotovoltaico ha prodotto 9.986 GJ nel 2025, circa 2.774 MWh,
+            in crescita del 13% sull'anno precedente. Le case «a bolletta zero»
+            (Casa al Coltro, Casa al Molli, Poggi Pietri) combinano geotermia,
+            pannelli solari, pompe di calore aria-acqua e cappotto termico.
+            </p>
+            <p>
+            Dell'energia autoprodotta solo un quarto viene consumato in loco: il
+            resto è immesso in rete, mentre l'azienda acquista energia certificata
+            rinnovabile. La quota rinnovabile sui consumi totali passa dal 12% al 39%.
+            </p>
+            <p class="ambito__dato">20.967 GJ consumati, 39% da fonti rinnovabili</p>
+        </article>
+
+        <article class="ambito ambito--clima">
+            <h3>Clima</h3>
+            <p>
+            L'inventario copre tutti e tre gli ambiti previsti dallo standard. Le
+            emissioni diffuse della catena del valore (acquisti, beni capitali,
+            spostamenti, trasporti) valgono l'88% del totale: sono le più
+            difficili da ridurre perché dipendono da scelte di fornitori terzi.
+            </p>
+            <p>
+            Nel 2026 la tenuta ha commissionato una caratterizzazione forestale
+            con tre metodologie indipendenti, che stima l'assorbimento del bosco
+            in circa 3.044 tonnellate l'anno, sei per ettaro, contro una media
+            nazionale di 4,2.
+            </p>
+            <p class="ambito__dato">6.672 tCO₂eq totali, 3.044 assorbite dal bosco</p>
+        </article>
+
+        <article class="ambito ambito--acqua">
+            <h3>Acqua</h3>
+            <p>
+            Il prelievo avviene da diciotto punti (quattordici pozzi e quattro
+            laghi) oltre all'acquedotto. I laghi artificiali raccolgono l'acqua
+            piovana; dal tetto della Tabaccaia parte un sistema di recupero usato
+            per i trattamenti in vigna.
+            </p>
+            <p>
+            Per il campo da golf è attiva una ricarica artificiale della falda:
+            l'acqua in eccesso del Lago Casa al Coltro viene immessa nei mesi
+            piovosi e prelevata solo in caso di tracimazione. Tutti e tre i siti
+            produttivi ricadono in aree classificate a stress idrico.
+            </p>
+            <p class="ambito__dato">115,20 megalitri prelevati, 53 consumati</p>
+        </article>
+
+        <article class="ambito ambito--circolare">
+            <h3>Economia circolare e filiera</h3>
+            <p>
+            Letame di chianine e cavalli, vinacce, tralci di potatura, scarti di
+            frangitura, guano e residui vegetali dei ristoranti rientrano nel
+            ciclo come compost per i vigneti. L'orto biologico, il pollaio e
+            l'ovile riforniscono le cucine della tenuta.
+            </p>
+            <p>
+            La spesa verso fornitori resta concentrata sul territorio: il 73% in
+            Toscana, l'89% in Italia.
+            </p>
+            <p class="ambito__dato">73% della spesa verso fornitori toscani</p>
+        </article>
+
+        <article class="ambito ambito--persone">
+            <h3>Persone</h3>
+            <p>
+            La forza lavoro media del 2025 è di 357 persone: 203 dipendenti, 139
+            stagionali, 15 esterni. La presenza femminile è del 48%. Si applicano
+            tre contratti collettivi (operai agricoli e florovivaisti, pubblici
+            esercizi, commercio) con copertura totale e nessuna contrattazione di
+            secondo livello.
+            </p>
+            <p>
+            Gli infortuni scendono da sette a quattro, nessuno grave, con il tasso
+            che passa da 3,47 a 1,90.
+            </p>
+            <p class="ambito__dato">4 infortuni, nessuno grave</p>
+        </article>
+
+    </div>
+</section>
+
+<!-- ======================================================================
+I NUMERI
+La sezione mostra un confronto quantitativo fra i risultati del 2024 con quelli
+del 2025 sugli indicatori ambientali e di sicurezza. Per farlo, viene usata una
+tabella che mostra su ogni indicatore una cella con i risultati del 2024 e accanto
+quella con i risultati del 2025. In ogni cella è mostrato sia il numero effettivo
+sia un riempimento dello sfondo basato sulla percentuale dello stesso valore.
+
+style="--q: N"
+Ogni cella numerica porta questo attributo, dove N è il valore espresso in
+percentuale del massimo della propria riga; il CSS disegna dietro il numero uno
+sfondo che si interrompe esattamente a quella percentuale.
+
+Il vantaggio di questa soluzione è l'accessibilità. Il contenuto in questo
+modo resta una tabella vera, con <th> e attributo scope sulle intestazioni di riga
+e di colonna. Uno screen reader la percorre cella per cella annunciando
+le coordinate, e se il file CSS non dovesse essere caricato, restano comunque
+i numeri, perfettamente leggibili. La rappresentazione visiva vive interamente
+nello sfondo.
+
+Le celle 2024 contrassegnate come riesposte riportano valori che il bilancio 2025
+ha rettificato rispetto alla pubblicazione originale. Il contrassegno è necessario
+perché senza di esso il confronto fra i due esercizi metterebbe a fianco grandezze
+non omogenee.
+====================================================================== -->
+<section id="numeri" class="sezione">
+    <h2>Confronto 2024 – 2025</h2>
+
+    <p>
+      Le emissioni sono classificate nei tre ambiti previsti dal GHG Protocol
+      e dallo standard GRI 305. Lo Scope 1 comprende le emissioni derivanti dalla
+      combustione di metano, gasolio e GPL. Lo Scope 2 riguarda l’energia elettrica
+      acquistata, calcolata secondo il metodo location-based, basato sul fattore
+      medio della rete nazionale, e il metodo market-based, basato sul fattore
+      previsto dal contratto di fornitura. Lo Scope 3 comprende tutte le altre
+      emissioni della catena del valore, dagli acquisti ai trasporti.
+    </p>
+
+<!--
+<table> </table>
+Qui viene usato un elemento tabella, che indica che il contenuto è organizzato
+in forma tabellare, cioè secondo righe e colonne in cui esiste una relazione
+tra i dati. Ad accompagnare la tabella viene usato l'elemento <caption> </caption>,
+che contiene la didascalia della tabella e ne descrive il contenuto e la fonte.
+L'uso di <caption> </caption>, invece di <p> </p>, permette alle tecnologie
+assistive di associare la didascalia direttamente alla tabella,
+favorendo l'accessibilità.
+
+<colgroup> </colgroup>
+Serve a definire un gruppo di colonne della tabella. È un elemento strutturale
+che permette di applicare proprietà a intere colonne senza dover ripetere una
+classe su ogni singola cella. Al suo interno sono presenti elementi <col>,
+ognuno dei quali rappresenta una colonna della tabella.
+
+<thead> </thead>
+Rappresenta l'intestazione della tabella e contiene al suo interno un elemento
+<tr> </tr>, che rappresenta una riga. Le celle dell'intestazione vengono definite
+con <th> </th> e hanno l'attributo scope="col", che specifica che ciascuna
+intestazione si riferisce alla rispettiva colonna.
+
+<tbody> </tbody>
+Contiene il corpo della tabella, cioè le righe che riportano i dati. Ogni riga
+<tr> </tr> contiene tre celle: la prima è un <th> </th> con scope="row", che
+identifica l'intestazione della riga; seguono due elementi <td> </td>, che
+rappresentano le celle contenenti i dati relativi rispettivamente al 2024 e al 2025.
+
+<abbr> </abbr>
+Viene usato per indicare un'abbreviazione. In questo caso contiene la lettera
+"r", mentre l'attributo title contiene la spiegazione completa dell'abbreviazione.
+In questo modo il significato dell'indicazione può essere associato direttamente
+all'elemento.
+
+&nbsp;
+È un'entità HTML che inserisce uno spazio unificatore, cioè uno spazio
+in corrispondenza del quale il testo non può andare a capo, e serve a impedire
+che in una cella stretta la cifra si stacchi dalla parola lasciando per esempio
+«Scope» su una riga e «1» sulla successiva.
+-->
+
+    <table class="confronto">
+        <caption>
+        Indicatori ambientali e di sicurezza, esercizi 2024 e 2025.
+        Fonte: Bilancio di sostenibilità 2025.
+        </caption>
+
+        <colgroup>
+            <col class="col-voce">
+            <col class="col-anno">
+            <col class="col-anno">
+        </colgroup>
+
+        <thead>
+            <tr>
+                <th scope="col">Indicatore</th>
+                <th scope="col">2024</th>
+                <th scope="col">2025</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <th scope="row">Consumi energetici <span class="unita">GJ</span></th>
+                <td class="q" style="--q: 91.8">19.243 <abbr class="nota" title="Valore riesposto nel bilancio 2025 rispetto alla pubblicazione originale">r</abbr></td>
+                <td class="q" style="--q: 100">20.967</td>
+            </tr>
+
+            <tr>
+                <th scope="row">Quota rinnovabile <span class="unita">%</span></th>
+                <td class="q" style="--q: 30.8">12 <abbr class="nota" title="Valore riesposto nel bilancio 2025 rispetto alla pubblicazione originale">r</abbr></td>
+                <td class="q" style="--q: 100">39</td>
+            </tr>
+
+            <tr>
+                <th scope="row">Emissioni dirette, Scope&nbsp;1 <span class="unita">tCO₂</span></th>
+                <td class="q" style="--q: 90.7">730</td>
+                <td class="q" style="--q: 100">805</td>
+            </tr>
+
+            <tr>
+                <th scope="row">Emissioni indirette, Scope&nbsp;2 market-based <span class="unita">tCO₂</span></th>
+                <td class="q" style="--q: 100">765</td>
+                <td class="q" style="--q: 1.4">11</td>
+            </tr>
+
+            <tr>
+                <th scope="row">Emissioni indirette, Scope&nbsp;2 location-based <span class="unita">tCO₂</span></th>
+                <td class="q" style="--q: 100">470 <abbr class="nota" title="Valore riesposto nel bilancio 2025 rispetto alla pubblicazione originale">r</abbr></td>
+                <td class="q" style="--q: 89.6">421</td>
+            </tr>
+
+            <tr>
+                <th scope="row">Emissioni indirette, Scope&nbsp;3 <span class="unita">tCO₂eq</span></th>
+                <td class="q" style="--q: 100">8.892</td>
+                <td class="q" style="--q: 65.8">5.855</td>
+            </tr>
+
+            <tr>
+                <th scope="row">Rifiuti prodotti <span class="unita">t</span></th>
+                <td class="q" style="--q: 84.5">13,1</td>
+                <td class="q" style="--q: 100">15,5</td>
+            </tr>
+
+            <tr>
+                <th scope="row">Infortuni registrabili</th>
+                <td class="q" style="--q: 100">7</td>
+                <td class="q" style="--q: 57.1">4</td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+    <p class="didascalia">
+    Le celle contrassegnate con <b>r</b> riportano valori del 2024 riesposti
+    nell'edizione successiva. Il dato Scope&nbsp;3 del 2024 proviene
+    dall'edizione 2024, che è l'unica a pubblicarlo.
+    </p>
+
+</section>
+
+<!-- ======================================================================
+ARCHIVIO
+È la funzione principale della pagina. Tre scelte tecniche la determinano.
+
+PRIMA. I PDF sono ospitati nella stessa origine della pagina, nella cartella
+report/ della repository, e non collegati al sito dell'azienda. L'attributo
+download, che chiede al browser di salvare il file invece di aprirlo, viene
+infatti ignorato quando l'indirizzo punta a un dominio diverso da quello della
+pagina: è una misura di sicurezza che impedisce a un sito di imporre il
+salvataggio di risorse ospitate altrove. Un collegamento esterno aprirebbe
+quindi il visualizzatore PDF interno del browser, mentre la traccia chiede che
+la pagina consenta il download dei report. Ospitare i file è l'unica soluzione
+che soddisfa il requisito.
+
+SECONDA. I nomi dei file sono normalizzati in minuscolo, senza accenti né
+spazi, perché i caratteri accentati richiedono la codifica percentuale
+nell'indirizzo e vengono trattati in modo diverso da sistemi operativi e
+server. L'attributo download conserva comunque un nome esteso e leggibile
+per il file salvato dall'utente.
+
+TERZA. Peso e numero di pagine sono dichiarati prima del clic, insieme
+agli altri metadati di ciascuna edizione.
+
+L'archivio viene presentato come una lista ordinata <ol> </ol>, nella quale
+gli item della lista <li> </li> sono elementi <details> </details>, ovvero
+pannelli nativamente espandibili e comprimibili, senza uso di JavaScript. Sono
+anche focalizzabili e apribili tramite tastiera, favorendo l'accessibilità.
+
+Ogni elemento <details> </details> della lista è composto dal titolo interagibile
+costituito dall'elemento <summary> </summary> che permette di aprire e chiudere
+il contenuto.
+
+Il contenuto è tutto inserito in un <div> </div> che contiene:
+- Un paragrafo <p> </p> con una descrizione del file scaricabile.
+- Una lista di descrizione <dl> </dl> con coppie di termine <dt> </dt> e dettagli
+<dd> </dd> che raccolgono in una piccola tabella le informazioni sul file.
+- Un link <a> </a> al file, con attributo download, che dice al browser che quel
+link è destinato al download della risorsa, invece di trattarla semplicemente
+come una normale navigazione.
+====================================================================== -->
+<section id="archivio" class="sezione">
+    <h2>Archivio dei bilanci</h2>
+
+    <p>
+    Sei edizioni pubblicate senza interruzioni dal 2020. Ogni scheda riporta
+    formato, peso e numero di pagine del file, oltre al numero di società
+    comprese nel perimetro di rendicontazione. La data indicata è quella di
+    creazione del PDF, ricavata dai metadati del documento, perché le edizioni
+    non dichiarano una data di pubblicazione.
+    </p>
+
+    <ol class="archivio">
+
+        <li class="edizione">
+            <details>
+                <summary>
+                    <span class="edizione__anno">2025</span>
+                    <span class="edizione__titolo">Sesta edizione</span>
+                </summary>
+
+                <div class="edizione__corpo">
+                    <p>
+                    Prima edizione redatta dopo un'analisi di materialità formale,
+                    condotta a cavallo fra 2025 e 2026 su metodologia GRI con una
+                    survey interna. Introduce la caratterizzazione forestale,
+                    l'estensione del perimetro ambientale a Pinino e il Piano 
+                    di Sostenibilità 2026-2028 sviluppato con il Politecnico di Milano.
+                    </p>
+
+                    <dl class="edizione__dati">
+                        <dt>Esercizio</dt><dd>1 gennaio – 31 dicembre 2025</dd>
+                        <dt>Creazione del file</dt><dd>7 agosto 2026</dd>
+                        <dt>Società nel perimetro</dt><dd>7</dd>
+                        <dt>Formato</dt><dd>PDF · 57 pagine · 18,9 MB</dd>
+                    </dl>
+
+                    <a class="scarica"
+                    href="report/bilancio-sostenibilita-2025.pdf"
+                    download="Il Borro – Bilancio di sostenibilità 2025.pdf">
+                    Scarica il bilancio 2025
+                    </a>
+
+                </div>
+
+            </details>
+
+        </li>
+
+        <li class="edizione">
+            <details>
+                <summary>
+                    <span class="edizione__anno">2024</span>
+                    <span class="edizione__titolo">Quinta edizione</span>
+                </summary>
+
+                <div class="edizione__corpo">
+                    <p>
+                    Primo esercizio dopo l'acquisizione di Pinino, a Montalcino, nel
+                    luglio 2024. La nota metodologica dichiara che il perimetro dei
+                    dati ambientali esclude la nuova controllata, non essendo stato
+                    possibile istituire in tempo processi di raccolta adeguati: è
+                    un'informazione necessaria per confrontare questa edizione con la
+                    successiva.
+                    </p>
+
+                    <dl class="edizione__dati">
+                        <dt>Esercizio</dt><dd>1 gennaio – 31 dicembre 2024</dd>
+                        <dt>Creazione del file</dt><dd>14 luglio 2025</dd>
+                        <dt>Società nel perimetro</dt><dd>6, di cui 5 per i dati ambientali</dd>
+                        <dt>Formato</dt><dd>PDF · 56 pagine · 26,6 MB</dd>
+                    </dl>
+
+                    <a class="scarica"
+                    href="report/bilancio-sostenibilita-2024.pdf"
+                    download="Il Borro – Bilancio di sostenibilità 2024.pdf">
+                    Scarica il bilancio 2024
+                    </a>
+
+                </div>
+
+            </details>
+
+        </li>
+
+        <li class="edizione">
+            <details>
+                <summary>
+                    <span class="edizione__anno">2023</span>
+                    <span class="edizione__titolo">Quarta edizione</span>
+                </summary>
+
+                <div class="edizione__corpo">
+                    <p>
+                    Esercizio in cui la tenuta adotta il Codice Etico, approvato 
+                    dal Consiglio di Amministrazione nel luglio 2023, e aderisce 
+                    allo UN Global Compact.
+                    </p>
+
+                    <dl class="edizione__dati">
+                        <dt>Esercizio</dt><dd>1 gennaio – 31 dicembre 2023</dd>
+                        <dt>Creazione del file</dt><dd>11 luglio 2024</dd>
+                        <dt>Società nel perimetro</dt><dd>5</dd>
+                        <dt>Formato</dt><dd>PDF · 50 pagine · 10,9 MB</dd>
+                    </dl>
+
+                    <a class="scarica"
+                    href="report/bilancio-sostenibilita-2023.pdf"
+                    download="Il Borro – Bilancio di sostenibilità 2023.pdf">
+                    Scarica il bilancio 2023
+                    </a>
+
+                </div>
+
+            </details>
+
+        </li>
+
+        <li class="edizione">
+            <details>
+                <summary>
+                    <span class="edizione__anno">2022</span>
+                    <span class="edizione__titolo">Terza edizione</span>
+                </summary>
+
+                <div class="edizione__corpo">
+                    <p>
+                    Prima edizione dell'era post-pandemica con attività a regime su
+                    tutto l'anno. Il valore economico generato quasi raddoppia rispetto
+                    all'esercizio precedente.
+                    </p>
+
+                    <dl class="edizione__dati">
+                        <dt>Esercizio</dt><dd>1 gennaio – 31 dicembre 2022</dd>
+                        <dt>Creazione del file</dt><dd>6 giugno 2023</dd>
+                        <dt>Società nel perimetro</dt><dd>5</dd>
+                        <dt>Formato</dt><dd>PDF · 44 pagine · 12,4 MB</dd>
+                    </dl>
+
+                    <a class="scarica"
+                    href="report/bilancio-sostenibilita-2022.pdf"
+                    download="Il Borro – Bilancio di sostenibilità 2022.pdf">
+                    Scarica il bilancio 2022
+                    </a>
+
+                </div>
+
+            </details>
+
+        </li>
+
+        <li class="edizione">
+            <details>
+                <summary>
+                    <span class="edizione__anno">2021</span>
+                    <span class="edizione__titolo">Seconda edizione</span>
+                </summary>
+
+                <div class="edizione__corpo">
+                    <p>
+                    Entra nel perimetro Il Borro Tuscan Bistro S.r.l., costituita nel
+                    settembre 2021. È l'edizione che documenta la prima transumanza e
+                    l'avvio della produzione casearia dall'ovile della tenuta.
+                    </p>
+
+                    <dl class="edizione__dati">
+                        <dt>Esercizio</dt><dd>1 gennaio – 31 dicembre 2021</dd>
+                        <dt>Creazione del file</dt><dd>16 giugno 2022</dd>
+                        <dt>Società nel perimetro</dt><dd>5</dd>
+                        <dt>Formato</dt><dd>PDF · 43 pagine · 4,1 MB</dd>
+                    </dl>
+
+                    <a class="scarica"
+                    href="report/bilancio-sostenibilita-2021.pdf"
+                    download="Il Borro – Bilancio di sostenibilità 2021.pdf">
+                    Scarica il bilancio 2021
+                    </a>
+
+                </div>
+
+            </details>
+
+        </li>
+
+        <li class="edizione">
+            <details>
+                <summary>
+                    <span class="edizione__anno">2020</span>
+                    <span class="edizione__titolo">Prima edizione</span>
+                </summary>
+
+                <div class="edizione__corpo">
+                    <p>
+                    Il primo bilancio della tenuta, riferito all'anno della pandemia.
+                    Rendiconta una selezione di indicatori GRI con confronto sul 2019 e
+                    stabilisce l'impianto (struttura per capitoli, indicatori di
+                    performance in appendice, nota metodologica finale) che tutte le
+                    edizioni successive hanno mantenuto.
+                    </p>
+
+                    <dl class="edizione__dati">
+                        <dt>Esercizio</dt><dd>1 gennaio – 31 dicembre 2020</dd>
+                        <dt>Creazione del file</dt><dd>30 luglio 2021</dd>
+                        <dt>Società nel perimetro</dt><dd>4</dd>
+                        <dt>Formato</dt><dd>PDF · 35 pagine · 5,8 MB</dd>
+                    </dl>
+
+                    <a class="scarica"
+                    href="report/bilancio-sostenibilita-2020.pdf"
+                    download="Il Borro – Bilancio di sostenibilità 2020.pdf">
+                    Scarica il bilancio 2020
+                    </a>
+
+                </div>
+
+            </details>
+
+        </li>
+
+    </ol>
+
+</section>
+
+<!-- ======================================================================
+NOTA METODOLOGICA
+Tramite una lista di descrizione <dl> </dl> si chiude la pagina dichiarando
+lo standard applicato, il livello di conformità, l'assenza di verifica esterna,
+il perimetro e la presenza di riesposizioni. Sono informazioni che permettono
+di calibrare il grado di affidabilità dei dati riportati nelle sezioni precedenti,
+e sono tutte verificabili nella nota metodologica delle edizioni citate.
+====================================================================== -->
+<section id="metodo" class="sezione sezione--metodo">
+    <h2>Nota metodologica</h2>
+
+    <dl class="scheda scheda--metodo">
+        <dt>Standard applicato</dt>
+            <dd>
+            GRI Sustainability Reporting Standards, con GRI 1 - principi
+            fondamentali (2021). Per le tematiche del settore primario è stato
+            analizzato il GRI 13 - Settori agricoltura, acquacoltura e pesca (2022).
+            </dd>
+
+        <dt>Livello di conformità</dt>
+            <dd>
+            Le edizioni dichiarano una rendicontazione con riferimento agli
+            standard GRI. È il livello 'with reference to', che
+            consente di selezionare le informative da riportare, distinto dal
+            livello 'in accordance with', che richiede la copertura
+            completa delle informative applicabili.
+            </dd>
+
+        <dt>Verifica esterna</dt>
+            <dd>
+            Nessuna delle sei edizioni è stata sottoposta a revisione limitata o
+            completa da parte di un soggetto indipendente.
+            </dd>
+
+        <dt>Perimetro</dt>
+            <dd>
+            Il perimetro comprende la capogruppo e le società controllate e
+            collegate, ed è variato nel tempo: da quattro società nella prima
+            edizione a sette nell'ultima. Il numero relativo a ciascuna edizione è
+            indicato nella scheda corrispondente dell'archivio.
+            </dd>
+
+        <dt>Riesposizioni</dt>
+            <dd>
+            Alcuni valori 2024 sono stati rettificati nell'edizione successiva. I
+            dati riesposti presenti in questa pagina sono contrassegnati nella
+            tabella di confronto; le edizioni originali restano scaricabili
+            dall'archivio, così che ogni valore sia verificabile alla fonte in cui è
+            stato pubblicato per primo.
+            </dd>
+        </dl>
+</section>
+
+</main>
+
+<footer class="pieddipagina">
+    <p class="pieddipagina__impresa">
+    Il Borro S.r.l. – Società Agricola<br>
+    Loc. Borro 1, 52024 Loro Ciuffenna (AR)<br>
+    P. IVA 01261410516
+    </p>
+
+<!--
+href="mailto:..."
+Nell'attributo href di <a>, il prefisso mailto: dichiara che la destinazione
+non è una pagina web ma un indirizzo di posta elettronica. Al clic il browser
+apre il programma di posta predefinito con il destinatario già compilato.
+-->
+
+    <p>
+    Per informazioni sui bilanci:
+    <a href="mailto:ilborro@ilborro.it">ilborro@ilborro.it</a>
+    </p>
+
+<!--
+L'elemento <time> marca una data come tale. L'attributo datetime la riporta
+nel formato ISO 8601, cioè in una forma non ambigua e interpretabile in
+modo automatico, mentre il testo visibile resta nella forma discorsiva.
+-->
+    <p class="pieddipagina__data">
+    Dati aggiornati all'edizione 2025 del Bilancio di sostenibilità.<br>
+    Pagina aggiornata il <time datetime="2026-09-15">15 settembre 2026</time>.
+    </p>
+
+    <p class="pieddipagina__nota">
+    Pagina realizzata a fini didattici nell'ambito di un project work
+    universitario. I documenti distribuiti sono pubblicati da Il Borro S.r.l. –
+    Società Agricola e ne restano di proprietà.
+    </p>
+</footer>
+
+</body>
+
+</html>

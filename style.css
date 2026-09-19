@@ -1,0 +1,1105 @@
+@charset "UTF-8";
+
+/*
+IMPOSTAZIONE GENERALE ----------------------------------------
+Il file CSS è organizzato in due livelli:
+- :root contiene le proprietà personalizzate, cioè i valori riutilizzati in più
+punti del documento, come colori, dimensioni e caratteri.
+- Le regole CSS, che utilizzano queste proprietà tramite var(--nome).
+
+La separazione permette di cambiare un colore o una misura in tutta la pagina
+modificando un solo valore in :root, senza toccare nessuna regola.
+----------------------------------------
+
+SELETTORI ----------------------------------------
+Il file utilizza due tipi di selettore, con scopi diversi:
+- Il selettore di tipo, cioè il nome dell'elemento scritto senza punto
+(p, table, th), si applica a tutti gli elementi di quel genere presenti nella pagina.
+- Il selettore di classe, preceduto dal punto (.scheda, .ambito), si applica ai
+soli elementi che portano quella classe. Viene usato quando la regola riguarda
+un ruolo specifico e non un genere di elemento.
+
+I due livelli convivono grazie alla specificità, cioè al criterio con cui il
+browser stabilisce quale regola applicare quando più regole riguardano lo
+stesso elemento. Un selettore di classe ha specificità superiore a un selettore
+di tipo e prevale quindi indipendentemente dall'ordine in cui compare nel file.
+A parità di specificità prevale invece la regola dichiarata più in basso.
+----------------------------------------
+
+CONTRASTI VERIFICATI ----------------------------------------
+Le combinazioni tra testo e sfondo sono state verificate secondo i criteri di
+contrasto previsti dalle WCAG 2.2. Le soglie di riferimento sono:
+- 4,5:1 per il livello AA;
+- 7:1 per il livello AAA;
+- 3:1 per bordi ed elementi grafici non testuali;
+----------------------------------------
+*/
+
+/*
+UNITÀ DI MISURA ----------------------------------------
+Nel file sono impiegate tre unità, con criteri distinti:
+- em è relativa alla dimensione del carattere dell'elemento stesso, quindi
+cambia da contesto a contesto. Viene usata dove la misura deve seguire il testo
+locale, come lo spazio fra due paragrafi consecutivi o lo scostamento della
+sottolineatura dei collegamenti.
+- rem, cioè root em, è relativa alla dimensione del carattere dell'elemento
+radice <html>, che corrisponde al valore predefinito del browser e che l'utente
+può modificare nelle impostazioni. È l'unità usata per la maggior parte delle
+misure tra testo, spaziature, larghezze massime e altezze minime.
+- px è un'unità assoluta e resta costante. Viene usata soltanto per gli elementi
+che non devono scalare insieme al testo, come bordi, linee divisorie, spessore
+dell'indicatore delle schede e distanza fra le parcelle del grafico.
+-pt è usato tradizionalmente nella tipografia per la stampa. 1 pt corrisponde
+a 1/72 di pollice.
+----------------------------------------
+*/
+
+/*
+----------------------------------------
+TOKEN
+Di seguito sono dichiarati le variabili CSS con la sintassi --nome: ...; e richiamate
+successivamente con var(--nome) nel corpo del file. Essendo dichiarate in :root,
+cioè nell'elemento <html>, sono disponibili in tutto il documento.
+----------------------------------------
+*/
+
+:root {
+
+/*
+BASE
+Colori utilizzati come base dell'interfaccia. Lo sfondo scuro è scelto per favorire
+la leggibilità. Il verde, richiamo al settore agricolo dell’azienda, rappresenta il
+riferimento cromatico dominante del progetto.
+*/
+
+  --fondo:      #232a1a;   /* sfondo della pagina */
+  --superficie: #2d3524;   /* sfondo di schede e pannelli */
+  --testo1:     #e3e7d7;   /* testo principale */
+  --testo2:     #a8b096;   /* testo secondario e didascalie */
+  --bordi:      #6a7859;   /* bordi, linee divisorie e righe delle tabelle */
+
+/*
+ACCENTI
+Colori utilizzati per evidenziare elementi interattivi e schede. Il primo è
+l'accento principale degli elementi con cui si interagisce (link, menu al passaggio
+del mouse, apertura, download, freccia delle schede e focus da tastiera).
+Gli altri colorano il bordo delle schede attività.
+*/
+
+  --accento:           #e08a9b;   /* rosa */
+  --accento-suolo:     #a9bd6a;   /* verde oliva */
+  --accento-energia:   #d8b44e;   /* giallo */
+  --accento-clima:     #bfc4b4;   /* grigio cenere */
+  --accento-acqua:     #9cc0d2;   /* azzurro */
+  --accento-circolare: #c4ab77;   /* sabbia */
+  --accento-persone:   #cf8a70;   /* terracotta */
+
+/*
+PARCELLE
+Colori assegnati alle diverse aree del grafico della tenuta e al relativo testo.
+*/
+
+  --parcella-testo:          #2e3320;
+  --parcella-bosco:          #a8b884;
+  --parcella-non-ripartito:  #d5d3c8;
+  --parcella-foraggi:        #c9b892;
+  --parcella-vite:           #c89aa6;
+  --parcella-olivo:          #bcc9a2;
+  --parcella-cereali:        #e0d2a2;
+  --parcella-arboreto:       #aebfab;
+  --parcella-impollinatori:  #dcc46a;
+  --parcella-orto:           #9db898;
+
+/*
+BARRA
+Colore utilizzato per la rappresentazione grafica dei valori all'interno della
+tabella di confronto. Viene usato rgba() invece del formato esadecimale perché
+permette di definire direttamente anche il livello di trasparenza (quarto valore
+della funzione).
+*/
+
+  --barra: rgba(169, 189, 106, .20); /* verde oliva schiarito */
+
+/*
+TIPOGRAFIA
+--testo: ...;
+Contiene una lista ordinata di famiglie tipografiche. Il browser prova a utilizzare
+il primo carattere disponibile. Se il primo font non è installato nel sistema, passa
+al successivo, fino ad arrivare a system-ui come soluzione di riserva. In questo modo
+si mantiene una tipografia coerente anche su sistemi operativi diversi.
+
+clamp(minimo, valore, massimo);
+Consente di definire contemporaneamente una dimensione minima, fluida e massima per
+il testo. Restituisce il valore centrale ma non scende mai sotto il minimo né sale sopra il
+massimo. La componente vw varia con la larghezza della finestra, quindi il testo può
+adattarsi allo spazio disponibile senza diventare troppo piccolo o troppo grande.
+
+--misura:...;
+Imposta la larghezza massima delle righe di testo continuo. Senza questo limite,
+i paragrafi potrebbero occupare tutta la larghezza del contenitore e diventare meno
+leggibili. Viene scelto 34rem perché considerato tra i valori ottimali per la lettura
+continua secondo diverse fonti per la tradizione tipografica digitale.
+- Baymard Institute ("Readability: The Optimal Line Length", 2022);
+- Pimp my Type ("The ideal line length & line height in web design", 2022);
+- UXPin ("Optimal Line Length for Readability", 2026);
+*/
+
+  --testo: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia,
+           "Times New Roman", system-ui;
+
+  --t-h1: clamp(2.4rem, 1.4rem + 4.4vw, 4.6rem);
+  --t-h2: clamp(1.6rem, 1.2rem + 1.6vw, 2.3rem);
+  --t-h3: clamp(1.1rem, 1rem + .4vw, 1.3rem);
+
+  --misura: 34rem;
+
+/*
+SCHEMA DI COLORI
+Per una migliore leggibilità viene dichiarato uno schema scuro tramite
+color-scheme: dark. Questo permette al browser di adattare automaticamente alcuni
+elementi nativi che non sono completamente controllabili tramite CSS, come controlli
+dei moduli e altri elementi dell'interfaccia del sistema.
+*/
+
+  color-scheme: dark;
+}
+
+/*
+----------------------------------------
+FONDAMENTA
+----------------------------------------
+*/
+
+/*
+BOX SIZING
+Per impostazione predefinita le proprietà width e height si riferiscono solo al
+contenuto. Padding e border vengono quindi aggiunti alle dimensioni dichiarate.
+Con border-box, invece, width e height comprendono anche padding e border. La
+dimensione dichiarata corrisponde quindi alla dimensione complessiva dell'elemento.
+Il selettore * comprende tutti gli elementi della pagina. ::before e ::after vengono
+aggiunti esplicitamente per applicare la stessa regola anche agli pseudo-elementi
+generati tramite CSS.
+*/
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/*
+RESET DEI MARGINI
+Il browser assegna automaticamente margini verticali a diversi elementi
+testuali e strutturali. Qui vengono azzerati per controllare la spaziatura
+direttamente nel CSS, evitando che dipenda dai valori predefiniti del browser.
+*/
+
+body, h1, h2, h3, p, ul, ol, dl, dd, figure, table {
+    margin: 0;
+}
+
+ul, ol {
+    padding: 0;
+    list-style: none;
+}
+
+/*
+SCORRIMENTO FLUIDO
+Quando si raggiunge un'ancora della pagina, lo spostamento avviene tramite animazione
+di scorrimento graduale invece che istantanea.
+*/
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--fondo);
+  color: var(--testo1);
+  font-family: var(--testo);
+  font-size: clamp(1rem, .96rem + .2vw, 1.09rem);
+  line-height: 1.65;
+  padding-inline: clamp(1rem, 4vw, 3rem);
+
+/*
+NUMERI TABELLARI
+Le cifre con larghezza fissa permettono di allineare correttamente i valori nelle
+colonne numeriche, soprattutto nelle tabelle.
+
+lining-nums
+Utilizza cifre allineate sulla stessa linea di base.
+
+tabular-nums
+Assegna alle cifre una larghezza uniforme, permettendo di allineare verticalmente i
+valori numerici.
+*/
+
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/*
+CONTENITORI PRINCIPALI
+Non viene utilizzato un contenitore <div> aggiuntivo nel markup. La larghezza massima
+viene applicata direttamente agli elementi principali della pagina.
+margin-inline: auto centra il contenuto orizzontalmente.
+*/
+
+.testata, main, .pieddipagina {
+    max-width: 62rem;
+    margin-inline: auto;
+}
+
+/*
+POSIZIONAMENTO DELLE ANCORE
+La navigazione rimane fissa nella parte superiore della finestra. Quando un link
+porta a un elemento identificato da un id, scroll-margin-top aggiunge uno spazio
+superiore prima del posizionamento finale. In questo modo il titolo della sezione
+non viene nascosto dalla barra di navigazione.
+*/
+
+[id] {
+  scroll-margin-top: 5rem;
+}
+
+a {
+  color: var(--accento);
+  text-underline-offset: .18em; /* allontana la sottolineatura dalla linea di base */
+}
+
+a:hover {
+  text-decoration-thickness: 2px; /* aumenta lo spessore della sottolineatura al passaggiodel mouse */
+}
+
+/*
+FOCUS DA TASTIERA
+:focus-visible mostra l'indicatore di focus quando la navigazione avviene tramite
+tastiera. In questo modo l'indicatore rimane utile per l'accessibilità senza
+comparire necessariamente durante la normale interazione con il mouse. La regola
+è globale e quindi si applica anche agli elementi focalizzabili eventualmente
+aggiunti in seguito.
+*/
+
+:focus-visible {
+  outline: 3px solid var(--accento); /* disegna una linea attorno all'elemento */
+  outline-offset: 3px; /* allontana la linea dal bordo dell'elemento */
+  border-radius: 2px; /* arrotonda leggermente gli angoli */
+}
+
+/*
+----------------------------------------
+TIPOGRAFIA
+----------------------------------------
+*/
+
+h1, h2, h3 {
+  line-height: 1.1;
+  font-weight: 600;
+  text-wrap: balance; /* Distribuisce le parole fra le righe in modo uniforme*/
+}
+
+h1 {
+    font-size: var(--t-h1);
+    letter-spacing: -.02em;
+}
+
+h2 {
+    font-size: var(--t-h2);
+    letter-spacing: -.01em;
+}
+
+h3 {
+    font-size: var(--t-h3);
+}
+
+p {
+    text-wrap: pretty; /* migliora la distribuzione delle parole nei paragrafi */
+}
+
+p + p {
+    margin-top: .9em; /* Quando due paragrafi sono consecutivi, il secondo riceve uno spazio superiore */
+}
+
+/*
+LARGHEZZA DEL TESTO
+I paragrafi, le didascalie e le descrizioni delle figure sono limitati alla misura
+definita in --misura. Tabelle e grafici non vengono limitati, perché per questi
+elementi la leggibilità dipende soprattutto dallo spazio orizzontale disponibile.
+*/
+
+.sezione > p, .didascalia, figcaption { /* Il simbolo > nel selettore è il combinatore di figlio diretto, che seleziona i paragrafi che sono figli immediati dell'elemento. */
+    max-width: var(--misura);
+}
+
+.didascalia, figcaption {
+  color: var(--testo2);
+  font-size: .9rem;
+  line-height: 1.5;
+  margin-top: .8rem;
+}
+
+
+/*
+----------------------------------------
+TESTATA E NAVIGAZIONE
+----------------------------------------
+*/
+
+.testata {
+  position: sticky; /* mantiene la testata visibile durante lo scorrimento */
+  top: 0; /* mantiene la testata a contatto con il bordo superiore della finestra */
+  z-index: 5; /* permette che la testata venga visualizzata sopra agli altri contenuti */
+  background: var(--fondo);
+  border-bottom: 1px solid var(--bordi);
+  padding-block: .8rem;
+  display: flex; /* permette di disporre impresa e menu orizzontalmente */
+  flex-wrap: wrap;
+  gap: .4rem 2rem; /* definisce la distanza fra gli elementi in orizzontale e verticale*/
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.testata__impresa {
+  font-size: .92rem;
+  font-weight: 600;
+  letter-spacing: .01em;
+}
+
+.menu ul {
+  display: flex;
+  flex-wrap: wrap; /* permette agli elementi di andare su più righe quando la larghezza disponibile non è sufficiente */
+  gap: .3rem 1.4rem;
+  font-size: .9rem;
+}
+
+.menu a {
+  color: var(--testo1);
+  text-decoration: none;
+  padding-block: .2rem;
+  border-bottom: 2px solid transparent;
+}
+
+.menu a:hover {
+    border-bottom-color: var(--accento);
+}
+
+
+/*
+----------------------------------------
+APERTURA
+----------------------------------------
+*/
+
+.apertura {
+    padding-block: clamp(3rem, 9vw, 6rem) clamp(2rem, 5vw, 3.5rem);
+}
+
+.apertura__occhiello {
+  max-width: 34rem;
+  margin-top: 1.6rem;
+  font-size: 1.12em;
+  color: var(--testo2);
+}
+
+.apertura__azione {
+    margin-top: 2rem;
+}
+
+.bottone {
+  display: inline-block; /* permette di farlo apparire come pulsante rimanendo un normale link */
+  background: var(--accento);
+  color: var(--fondo);
+  text-decoration: none;
+  padding: .7rem 1.4rem;
+  font-weight: 600;
+}
+
+.bottone:hover { /* definisce nuovi parametri al passaggio del mouse sopra l'elemento */
+    background: var(--testo1);
+}
+
+
+/*
+----------------------------------------
+SEZIONI
+----------------------------------------
+*/
+
+.sezione {
+  padding-block: clamp(2.5rem, 6vw, 4.5rem);
+  border-top: 1px solid var(--bordi);
+}
+
+.sezione > h2 {
+    margin-bottom: 1.4rem;
+}
+
+.sezione > * + * { /* Se due o più elementi consecutivi sono figli diretti della sezione, viene aggiunta una spaziatura uniforme tra loro */
+    margin-top: 1.2rem;
+}
+
+
+/*
+----------------------------------------
+GRAFICO DELLA TENUTA
+----------------------------------------
+*/
+
+/*
+STRUTTURA
+Il grafico utilizza una struttura flex in cui la dimensione di ogni parcella dipende
+direttamente dal dato numerico associato nel markup.
+
+Ogni <li> porta nel markup style="--ha: N" con gli ettari reali. Qui flex-grow legge
+quella proprietà, e poiché flex-basis è impostato a zero gli elementi partono dalla
+stessa base e lo spazio disponibile viene distribuito in proporzione ai valori di
+--ha. Di conseguenza non è necessario calcolare manualmente le percentuali nel CSS
+(es. 620 su 1.121 occupa il 55,3%).
+
+Il vantaggio principale è la facilità di aggiornamento, in quanto modificando il
+dato numerico nel markup si aggiorna automaticamente la rappresentazione grafica.
+
+
+ETICHETTE DELLE PARCELLE
+Il nome della parcella viene ruotato verticalmente con writing-mode: vertical-rl.
+In questo modo l'etichetta utilizza l'altezza disponibile invece di richiedere una
+larghezza elevata alla parcella. Il valore in ettari resta invece orizzontale
+nella parte inferiore.
+
+
+MANTENIMENTO DELLE PROPORZIONI
+Le parcelle molto piccole non possono diventare infinitamente strette, perché
+hanno comunque bisogno di contenere un'etichetta leggibile. Per questo viene
+applicata una min-width minima. Questa soglia introduce inevitabilmente una
+piccola distorsione nelle parcelle più piccole, ma permette di mantenere
+leggibili le etichette senza compromettere eccessivamente le proporzioni
+delle parcelle grandi. La didascalia della figura esplicita questo limite.
+*/
+
+.tenuta {
+    margin-top: 2rem;
+}
+
+.mosaico {
+  display: flex;
+  gap: 3px;
+  min-height: 11rem;   /* spazio per l'etichetta più lunga ruotata */
+}
+
+.parcella {
+  flex-grow: var(--ha);   /* la proporzione */
+  flex-shrink: 1;
+  flex-basis: 0;          /* nessuna larghezza di partenza da sommare */
+  min-width: 2.2rem;      /* soglia di leggibilità */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;        /* entrambi i testi al margine sinistro */
+  justify-content: space-between; /* nome in alto, valore in basso */
+  gap: .4rem;
+  padding: .25rem .25rem;
+  color: var(--parcella-testo);
+  font-size: 0.9rem;
+  line-height: 1;
+  overflow: hidden;       /* le etichette lunghe non sfondano la parcella */
+}
+
+/*
+NOME DELLA PARCELLA
+Il nome è l'unico testo orientato verticalmente. writing-mode modifica la direzione
+di scrittura senza richiedere trasformazioni geometriche dell'elemento.
+*/
+
+.parcella b {
+  writing-mode: vertical-rl;
+  font-weight: 600;
+}
+
+/*
+VALORE IN ETTARI
+Il valore rimane orizzontale ed è posizionato nella parte inferiore della parcella.
+La dimensione del testo viene ridotta perché questo elemento contribuisce alla
+larghezza minima necessaria per visualizzare il dato. Non viene utilizzato
+white-space: nowrap di proposito, così nelle parcelle più strette il valore può
+andare a capo invece di essere tagliato.
+*/
+
+.parcella span {
+  font-weight: 400;
+  font-size: .75rem;
+  letter-spacing: -0.05rem;
+  word-spacing: -0.05rem;
+  margin: -0.15rem -0.15rem;
+}
+
+.parcella--bosco {
+    background: var(--parcella-bosco);
+}
+
+.parcella--non-ripartito {
+    background: var(--parcella-non-ripartito);
+}
+
+.parcella--foraggi {
+    background: var(--parcella-foraggi);
+}
+
+.parcella--vite {
+    background: var(--parcella-vite);
+}
+
+.parcella--olivo {
+    background: var(--parcella-olivo);
+}
+
+.parcella--cereali {
+    background: var(--parcella-cereali);
+}
+
+.parcella--arboreto {
+    background: var(--parcella-arboreto);
+}
+
+.parcella--impollinatori {
+    background: var(--parcella-impollinatori);
+}
+
+.parcella--orto {
+    background: var(--parcella-orto);
+}
+
+/*
+LAYOUT RESPONSIVE DEL GRAFICO
+Sotto i 46rem il grafico cambia orientamento, da orizzontale a verticale. La
+proprietà --ha rimane la stessa, cambia soltanto l'asse principale del
+contenitore flex. In questo modo lo stesso dato continua a determinare la
+proporzione, senza dover definire valori diversi per desktop e mobile. In questa
+configurazione il nome della parcella torna orizzontale, perché le parcelle diventano
+più larghe e meno alte.
+*/
+
+@media (max-width: 46rem) {
+
+  .mosaico {
+    flex-direction: column;
+    min-height: 30rem;
+  }
+
+  .parcella {
+    min-width: 0;
+    min-height: 2rem;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: .5rem;
+    padding: .4rem .4rem;
+  }
+
+  .parcella b {
+      writing-mode: horizontal-tb;
+    }
+
+}
+
+/*
+TABELLA INFORMATIVA
+Le liste di definizioni <dl> vengono utilizzate come strutture a due colonne, in cui
+<dt> (etichetta) e <dd> (descrizione) si dispongono alternativamente. La griglia crea
+una colonna per le etichette e una colonna flessibile per i contenuti.
+*/
+
+.scheda {
+  display: grid;
+  grid-template-columns: minmax(8rem, 14rem) 1fr;
+  gap: .1rem 1.5rem;
+  margin-top: 2rem;
+  max-width: 48rem;
+  font-size: .95rem;
+}
+
+.scheda dt {
+  color: var(--testo2);
+  padding-block: .45rem;
+  border-top: 1px solid var(--bordi);
+}
+
+.scheda dd {
+  padding-block: .45rem;
+  border-top: 1px solid var(--bordi);
+}
+
+/*
+LAYOUT RESPONSIVE DELLA TABELLA INFORMATIVA
+Quando la finestra è troppo stretta per mantenere due colonne leggibili, la griglia
+viene trasformata in una sola colonna. La descrizione viene collocata sotto la
+relativa etichetta. La riduzione della larghezza delle colonne evita che il testo
+venga compresso eccessivamente o produca righe troppo frammentate.
+*/
+
+@media (max-width: 44rem) {
+  .scheda {
+      grid-template-columns: 1fr; gap: 0;
+    }
+
+  .scheda dd {
+      border-top: 0;
+      padding-top: 0;
+      padding-bottom: 1.1rem;
+    }
+
+}
+
+
+/*
+----------------------------------------
+GRIGLIA ATTIVITÀ
+----------------------------------------
+*/
+
+
+/*
+STRUTTURA GRIGLIA
+La griglia utilizza repeat(auto-fit, minmax(18rem, 1fr)). Il browser inserisce
+automaticamente il maggior numero possibile di colonne con larghezza minima di 18rem.
+Quando lo spazio disponibile diminuisce, il numero di colonne si riduce
+automaticamente fino ad arrivare a una sola colonna. Non è quindi necessario
+definire manualmente un breakpoint per ogni numero di colonne.
+*/
+
+.griglia {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.ambito {
+  background: var(--superficie);
+  padding: 1.4rem 1.5rem;
+  border-left: 3px solid var(--bordi);
+  font-size: .95rem;
+}
+
+.ambito h3 {
+    margin-bottom: .7rem;
+}
+
+/*
+COLORE TEMATICO
+Il bordo laterale identifica visivamente l'ambito della scheda. I colori sono
+centralizzati in :root e richiamati tramite le relative proprietà personalizzate.
+*/
+
+.ambito--suolo {
+    border-left-color: var(--accento-suolo);
+}
+
+.ambito--energia {
+    border-left-color: var(--accento-energia);
+}
+
+.ambito--clima {
+    border-left-color: var(--accento-clima);
+}
+
+.ambito--acqua {
+    border-left-color: var(--accento-acqua);
+}
+
+.ambito--circolare {
+    border-left-color: var(--accento-circolare);
+}
+
+.ambito--persone {
+    border-left-color: var(--accento-persone);
+}
+
+/*
+DATO PRINCIPALE DELLA SCHEDA
+L'ultimo dato della scheda viene separato dal contenuto precedente con una linea
+superiore. Questo crea una gerarchia visiva senza aggiungere un elemento HTML
+esclusivamente decorativo.
+*/
+
+.ambito__dato {
+  margin-top: 1.1rem;
+  padding-top: .8rem;
+  border-top: 1px solid var(--bordi);
+  font-weight: 600;
+  font-size: .98rem;
+}
+
+/*
+----------------------------------------
+TABELLA DI CONFRONTO
+----------------------------------------
+*/
+
+/*
+STRUTTURA
+La tabella, a 3 colonne, occupa tutta la larghezza disponibile del contenitore.
+Le celle possono andare a capo, quindi la struttura rimane contenuta anche quando
+lo spazio orizzontale diminuisce.
+
+RAPPRESENTAZIONE GRAFICA DEI VALORI
+Ogni cella numerica contiene una proprietà personalizzata style="--q: N" dove N
+rappresenta la percentuale relativa al valore massimo della riga. Il valore viene
+poi trasformato in una percentuale tramite calc(var(--q) * 1%). Il gradiente lineare
+utilizza due punti di arresto coincidenti: colore fino al valore e poi trasparente.
+
+Il risultato è una barra orizzontale proporzionata al dato, realizzata direttamente
+come sfondo della cella. Il vantaggio è che la rappresentazione grafica è contenuta
+nello sfondo CSS e non introduce ulteriori elementi nel documento.
+
+BOX DELLA CELLA
+background-origin e background-clip vengono impostati sul content-box. In questo
+modo il gradiente non occupa il padding orizzontale della cella. Resta così una
+piccola separazione visiva tra una barra e l'altra, evitando che le due celle
+della stessa riga sembrino formare un'unica barra continua.
+*/
+
+table {
+  border-collapse: collapse; /* i bordi delle celle confinanti vengono fusi in una linea sola condivisa */
+  width: 100%;
+  font-size: .92rem;
+}
+
+caption {
+  text-align: left;
+  color: var(--testo2);
+  font-size: .88rem;
+  line-height: 1.45;
+  padding-bottom: .9rem;
+  max-width: var(--misura);
+}
+
+th, td {
+  text-align: left;
+  padding: .55rem .7rem;
+  border-bottom: 1px solid var(--bordi); /* forma un filo continuo lungo tutta la riga */
+  vertical-align: baseline;
+}
+
+thead th {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--testo2);
+  border-bottom-width: 2px;
+}
+
+tbody th[scope="row"] {
+    font-weight: 400;
+}
+
+.col-voce {
+    width: 42%;
+}
+
+.col-anno {
+    width: 29%;
+}
+
+/*
+UNITÀ DI MISURA
+L'unità viene inserita nell'intestazione associata alla grandezza, invece di essere
+ripetuta in ogni singola cella. In questo modo l'unità rimane semanticamente legata
+alla colonna.
+*/
+
+.unita {
+  color: var(--testo2);
+  font-size: .82em;
+}
+
+/*
+BARRE PROPORZIONALI
+q contiene il valore relativo espresso come numero. Il gradiente cresce
+orizzontalmente fino a quel valore e rimane trasparente oltre il punto raggiunto.
+background-origin e background-clip limitano l'area del gradiente al contenuto della
+cella, lasciando il padding privo di sfondo.
+*/
+
+.confronto td.q {
+  padding-inline: .9rem 1.6rem;
+  background-origin: content-box;
+  background-clip: content-box;
+  background-image: linear-gradient(to right, var(--barra) calc(var(--q) * 1%), transparent  calc(var(--q) * 1%));
+  font-weight: 600;
+}
+
+/*
+SIGLA CON SPIEGAZIONE
+<abbr> viene utilizzato quando il testo è una sigla o un'abbreviazione. L'attributo
+title fornisce una spiegazione aggiuntiva quando l'utente interagisce con
+l'abbreviazione. La spiegazione completa viene comunque mantenuta nella didascalia
+della tabella, in modo da non dipendere esclusivamente dal title.
+*/
+
+.nota {
+  color: var(--accento);
+  font-weight: 700;
+  font-size: .8em;
+  vertical-align: super;
+  text-decoration: none;
+  cursor: help;
+}
+
+/*
+----------------------------------------
+ARCHIVIO
+----------------------------------------
+*/
+
+.archivio {
+  margin-top: 2rem;
+  border-top: 1px solid var(--bordi);
+}
+
+.edizione {
+    border-bottom: 1px solid var(--bordi); /* Ogni elemento viene separato da una linea inferiore. */
+}
+
+/*
+INTERRUTTORE DEL CONTENUTO
+summary costituisce l'elemento cliccabile che apre o chiude il contenuto.
+Il marker predefinito del browser viene rimosso per sostituirlo con un indicatore
+grafico costruito tramite ::after.
+*/
+
+.edizione summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1.1rem .2rem;
+  display: flex;
+  align-items: baseline;
+  gap: 1.2rem;
+}
+
+.edizione summary::-webkit-details-marker {
+    display: none;
+}
+
+/*
+ANNO
+L'anno riceve una larghezza minima comune in modo che gli elementi dell'archivio
+risultino allineati verticalmente.
+*/
+
+.edizione__anno {
+  font-size: 1.5rem;
+  font-weight: 600;
+  min-width: 3.6rem;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.edizione__titolo {
+    color: var(--testo2);
+}
+
+/*
+INDICATORE DI APERTURA
+La freccia viene costruita senza immagini: border-right e border-bottom formano un
+angolo che rappresenta l'indicatore di apertura/chiusura. La rotazione viene
+modificata quando <details> possiede l'attributo open.
+*/
+
+.edizione summary::after {
+  content: "";
+  margin-left: auto;
+  align-self: center;
+  width: .55rem;
+  height: .55rem;
+  border-right: 2px solid var(--accento);
+  border-bottom: 2px solid var(--accento);
+  transform: rotate(45deg);
+  transform-origin: center;
+  transition: transform .18s ease-out;
+}
+
+.edizione details[open] summary::after {
+    transform: rotate(-135deg);
+}
+
+.edizione summary:hover .edizione__anno {
+    color: var(--accento); /* Al passaggio del mouse viene evidenziato l'anno per maggiore feedback visivo sull'elemento interattivo. */
+}
+
+/*
+CONTENUTO DELL'EDIZIONE
+Il contenuto aperto viene leggermente rientrato e limitato in larghezza per mantenere
+una misura di lettura adeguata.
+*/
+
+.edizione__corpo {
+  padding: 0 .2rem 1.6rem;
+  max-width: 44rem;
+}
+
+.edizione__corpo > p {
+    max-width: var(--misura);
+}
+
+/*
+DATI DELL'EDIZIONE
+Anche le informazioni tecniche vengono disposte come coppie etichetta/valore
+attraverso CSS Grid.
+*/
+
+.edizione__dati {
+  display: grid;
+  grid-template-columns: minmax(7rem, 12rem) 1fr;
+  gap: .15rem 1.5rem;
+  margin-top: 1.2rem;
+  font-size: .9rem;
+}
+
+.edizione__dati dt {
+    color: var(--testo2);
+}
+
+/*
+LINK DI DOWNLOAD
+Il link viene reso visivamente simile a un pulsante attraverso padding, bordo,
+sfondo e peso tipografico, grazie a inline-block. Rimane comunque semanticamente
+un normale elemento <a>.
+*/
+
+.scarica {
+  display: inline-block;
+  margin-top: 1.4rem;
+  padding: .7rem 1.2rem;
+  background: var(--superficie);
+  border: 2px solid var(--accento);
+  color: var(--accento);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.scarica:hover {
+    background: var(--accento);
+    color: var(--fondo);
+}
+
+/*
+----------------------------------------
+NOTA METODOLOGICA
+----------------------------------------
+*/
+
+.scheda--metodo {
+    grid-template-columns: minmax(9rem, 13rem) 1fr;
+}
+
+.sezione--metodo .scheda dd {
+    max-width: 40rem;
+}
+
+/*
+----------------------------------------
+PIÈ DI PAGINA
+----------------------------------------
+*/
+
+/*
+STRUTTURA
+Il footer utilizza CSS Grid. auto-fit consente al browser di adattare
+automaticamente il numero di colonne allo spazio disponibile.
+*/
+
+.pieddipagina {
+  border-top: 1px solid var(--bordi);
+  padding-block: 2.5rem 4rem;
+  font-size: .9rem;
+  color: var(--testo2);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.5rem 2.5rem;
+  align-items: start;
+}
+
+.pieddipagina__impresa {
+    color: var(--testo1);
+}
+
+.pieddipagina__data {
+    color: var(--testo1);
+}
+
+.pieddipagina__data time {
+    white-space: nowrap; /* impedisce che la data venga spezzata su più righe */
+}
+
+.pieddipagina__nota {
+  grid-column: 1 / -1; /* La nota finale occupa tutte le colonne della griglia. */
+  border-top: 1px solid var(--bordi);
+  padding-top: 1.2rem;
+  font-size: .82rem;
+  max-width: var(--misura);
+}
+
+
+/*
+MOVIMENTO RIDOTTO
+Alcuni utenti possono avere problemi con animazioni e movimenti eccessivi
+dell'interfaccia. La media query prefers-reduced-motion rileva la preferenza del
+sistema operativo dell'utente e riduce le animazioni presenti nella pagina.
+Lo scorrimento fluido viene disattivato completamente. Per transizioni e
+animazioni, invece, la durata viene portata quasi a zero. Le proprietà rimangono
+comunque definite, evitando di dover mantenere una versione alternativa separata
+del CSS. animation-iteration-count: 1 impedisce la ripetizione delle animazioni.
+*/
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+      scroll-behavior: auto;
+  }
+
+  *, *::before, *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+}
+
+/*
+DETTAGLI DI STAMPA
+Questa media query raccoglie le sole modifiche applicate quando la pagina viene
+stampata o salvata in PDF. La versione a schermo ha lo sfondo scuro, che su carta
+produrrebbe pagine completamente inchiostrate e testo chiaro illeggibile.
+All'interno di @media print le proprietà personalizzate di :root vengono quindi
+ridichiarate con una palette chiara: sfondo bianco, testo nero, testo secondario,
+bordi e barre in grigio. I colori del grafico della tenuta e i bordi tematici delle
+schede restano invariati, perché sono già chiari e si stampano correttamente.
+
+Vengono poi nascosti gli elementi che su carta non hanno funzione. La testata con
+il menu, il pulsante di apertura e la freccia delle schede dell'archivio.
+::details-content permette invece di mostrare in stampa anche il contenuto delle
+schede che l'utente non ha aperto.
+*/
+
+@media print {
+
+  :root {
+    --fondo:      #fff;
+    --superficie: #fff;
+    --testo1:     #000;
+    --testo2:     #444;
+    --bordi:      #bbb;
+    --accento:    #000;
+    --barra:      #e4e4e4;
+  }
+
+  body {
+    font-size: 10.5pt;
+    padding: 0;
+  }
+
+  .testata, .apertura__azione {
+      display: none;
+  }
+
+  details::details-content {
+      content-visibility: visible;
+  }
+
+  .edizione summary::after {
+      display: none;
+  }
+
+}
