@@ -76,9 +76,7 @@ dei titoli senza salti di livello, tabelle con `scope` sulle intestazioni di
 riga e di colonna, navigazione completa da tastiera con indicatore di focus
 visibile, rispetto della preferenza di sistema per il movimento ridotto. I
 rapporti di contrasto fra testo e sfondo sono stati calcolati secondo le
-
 norme WCAG 2.2: 11,8:1 per il testo principale, 6,6:1 per il testo secondario, 
-
 5,8:1 per i collegamenti, da 5,4:1 a 8,7:1 per le etichette del grafico della tenuta.
 
 **Foglio di stampa:** La versione a schermo ha fondo scuro, che su carta
